@@ -1,0 +1,15 @@
+[project]
+name = "ya-agent"
+version = "0.1.0"
+description = "Python-based office agent prototype for customer interview follow-up"
+requires-python = ">=3.14"
+dependencies = [
+    "pydantic>=2.14.1",
+]
+
+[project.scripts]
+ya-agent = "ya_agent:main"
+
+[build-system]
+requires = ["uv_build>=0.9.11,<0.10.0"]
+build-backend = "uv_build"
