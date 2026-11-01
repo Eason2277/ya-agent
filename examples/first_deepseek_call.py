@@ -7,6 +7,7 @@ from dotenv import load_dotenv
 from langchain_deepseek import ChatDeepSeek
 from ya_agent.schemas import Finding, TicketReview
 from ya_agent.evidence import verify_quotes
+from ya_agent.review import build_review_prompt
 
 
 
@@ -29,7 +30,8 @@ def main() -> None:
     case_text = (project_root / "examples" / "x100_case.md").read_text(encoding="utf-8")
 
     # split得到[工单部分，手册部分]; [1]取手册部分供引文核对
-    manual_text = case_text.split("# 虚构产品手册摘录", maxsplit=1)[1]
+    # split，对指定的字符串内容进行切割
+    ticket_text, manual_text = case_text.split("# 虚构产品手册摘录", maxsplit=1)
 
     # 前三段文字规定任务和证据边界，最后用 f 字符串附上实际样本内容。
     prompt = (
@@ -42,7 +44,7 @@ def main() -> None:
         "unknowns 不要列举资料没有支持的可能故障原因。"
         "需要授权服务人员进一步评估时，在 escalation 中说明原因。"
         "reply_draft.text 是尚未发送的客户回复；review_note 是给售后人员的审核提醒。\n\n"
-        f"{case_text}"
+        +build_review_prompt(ticket_text, manual_text)
     )
 
     # 把完整提示词发给模型，返回的 reply 是模型消息；content 是回复正文。

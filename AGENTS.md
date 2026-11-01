@@ -4,7 +4,7 @@
 
 ## 当前目标
 
-探索面向综合办公的自有 Agent 产品。当前技术学习与原型主线是 **Python + LangChain + LangGraph**；Nous Research Hermes Agent 保留为成熟系统的代码和架构参考，不作为当前原型运行时。当前选定的第一个验证场景是：**制造业企业售后工单处理 Agent**，帮助售后支持人员基于产品手册、服务政策和历史案例整理工单、定位依据并起草回复。这是用户选定的 MVP 假设，尚未用真实团队和工单验证；不能描述为已验证的市场需求。
+探索面向综合办公的自有 Agent 产品。当前技术学习与原型主线是 **Python + LangChain + LangGraph**；Nous Research Hermes Agent 保留为成熟系统的代码和架构参考，不作为当前原型运行时。产品形态已确定为同时提供终端 `ya` CLI 和自有图形界面，两者共用一个 Python 核心；入口分层、前端选型与分阶段关卡见 [`docs/decisions/0004-cli-and-desktop-entry-architecture.md`](docs/decisions/0004-cli-and-desktop-entry-architecture.md)。当前选定的第一个验证场景是：**制造业企业售后工单处理 Agent**，帮助售后支持人员基于产品手册、服务政策和历史案例整理工单、定位依据并起草回复。这是用户选定的 MVP 假设，尚未用真实团队和工单验证；不能描述为已验证的市场需求。
 
 开始或恢复工作时，先读 [`docs/PROGRESS.md`](docs/PROGRESS.md) 了解当前进度和下一步；首版工作流和范围以 [`docs/MVP_WORKFLOW.md`](docs/MVP_WORKFLOW.md) 为准，产品愿景和长期原则以 [`docs/PRODUCT_BRIEF.md`](docs/PRODUCT_BRIEF.md) 为准，当前技术栈选择和评估依据以 [`docs/decisions/0002-langchain-langgraph-learning-stack.md`](docs/decisions/0002-langchain-langgraph-learning-stack.md) 为准。[`docs/README.md`](docs/README.md) 是文档索引。进度文档是续做提示；若与最新代码、Git 状态或用户当前要求不一致，以这些最新证据为准。
 

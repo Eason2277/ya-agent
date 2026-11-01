@@ -9,8 +9,9 @@
 
 ## 已确认方向与工作假设
 
-- **技术学习主线（已确认）：** Python、Pydantic 和 LangChain 已用于当前原型；需要显式多步状态和人工审核时用 LangGraph；需要 HTTP 接口时再加 FastAPI。
+- **技术学习主线（已确认）：** Python、Pydantic 和 LangChain 已用于当前原型；需要显式多步状态和人工审核时用 LangGraph；本地 HTTP 服务与前端技术选型见[决策 0004](decisions/0004-cli-and-desktop-entry-architecture.md)。
 - **架构参考（已确认）：** Hermes 只通过[官方 GitHub 仓库](https://github.com/NousResearch/hermes-agent)及其架构文档在线研究，不作为当前 MVP 的运行时；原本地浅克隆已从项目目录移走。
+- **产品形态与入口分层（已确认，2026-11-01）：** 同时提供终端 `ya` CLI 和图形桌面端；一个 Python 核心、多个薄入口，桌面端只是壳，业务通过本地 FastAPI 访问核心。技术选型、分阶段关卡与重新评估条件见[决策 0004](decisions/0004-cli-and-desktop-entry-architecture.md)。
 - **目标用户（假设）：** 制造业企业售后支持/技术服务人员，以及审核复杂工单的资深工程师或服务主管。
 - **项目开发者与协作方式：** 用户是亲自学习和实现的开发者，并希望具备产品思维；不应要求用户以产品专员或售后专家身份独立给出未验证需求。AI 应先依据工作流提出有理由的建议，并清楚标注事实、假设和待验证项，再请用户判断或修正。详见根目录 `AGENTS.md`。
 - **首个任务（用户已选择，需求未验证）：** 输入一条售后工单和用户指定的产品资料，输出问题分类、来源依据、待补信息、升级建议和回复草稿。
@@ -25,20 +26,21 @@
 - 添加 Pydantic、LangChain、`langchain-deepseek` 和 `python-dotenv` 依赖，并更新 `uv.lock`。
 - `uv run ya-agent` 已成功运行，输出 `Hello from ya-agent!`。目前这只是包入口占位代码，不是 MVP 功能。
 - `src/ya_agent/schemas.py` 已定义工单输入、证据、发现、待补问题、升级判断、回复草稿和汇总结果 `TicketReview`；`Finding.evidence` 要求至少一条证据。
-- `examples/x100_case.md` 提供完全虚构的 E18 工单与手册摘录。`examples/first_deepseek_call.py` 已通过 LangChain 调用 DeepSeek，生成结构化 `TicketReview`，逐条调用 `src/ya_agent/evidence.py` 的 `verify_quotes` 核对引文。`src/ya_agent/review.py` 已定义 `build_review_prompt`，尚未接入示例调用。
-- 已观察到完整 `TicketReview` 生成、引文核对通过，也出现过一次引文不匹配而被程序阻止的情况；模型还曾生成资料未支持的操作建议和未执行的服务承诺。提示词已收紧，但尚不能保证整份草稿安全可用。
+- `examples/x100_case.md` 提供完全虚构的 E18 工单与手册摘录。`examples/first_deepseek_call.py` 已通过 LangChain 调用 DeepSeek，生成结构化 `TicketReview`，逐条调用 `src/ya_agent/evidence.py` 的 `verify_quotes` 核对引文，并已接入 `src/ya_agent/review.py` 的 `build_review_prompt(ticket_text, manual_text)`。
+- 已观察到完整 `TicketReview` 生成和引文核对通过；接入提示词函数后，一次结构化解析返回 `None`，脚本访问 `review.findings` 时崩溃，另两次模型把客户描述当成手册引文而被程序阻止。原始模型回复未保留，`None` 的具体原因尚未确定。模型还曾生成资料未支持的操作建议和未执行的服务承诺；当前输出不能直接作为客户回复。
+- 已确定入口与界面方案（[决策 0004](decisions/0004-cli-and-desktop-entry-architecture.md)）：一个 Python 核心 + `ya` CLI + FastAPI 本地服务 + Electron/React 桌面壳，分 S0–S4 阶段；`core/` 禁止 `print`、`input`、`sys.argv` 和对 CLI/HTTP 框架的依赖。根 `README.md`、`AGENTS.md`、产品概要、MVP 文档和本文档已按此同步。
 
 ## 下一步（一次只做一小步）
 
-1. 将 `build_review_prompt(ticket_text, manual_text)` 接入现有示例，明确区分客户描述与指定资料；先检查函数的输入、输出和实际调用路径。
-2. 将已经跑通的模型调用和引文核对逐步移入可复用的应用处理函数，形成输入工单与资料、返回待审核 `TicketReview` 的一条流程。
+1. 在示例中先处理 `review is None`，避免结构化结果缺失时崩溃；保留输入与错误信息，继续定位模型把客户描述当成手册引文的问题。
+2. 将模型调用和引文核对逐步移入可复用的应用处理函数（`ya_agent/core/`），形成输入工单与资料、返回待审核 `TicketReview` 的一条流程。按[决策 0004](decisions/0004-cli-and-desktop-entry-architecture.md)，`core` 内不得出现 `print`、`input`、`sys.argv` 或对 CLI/HTTP 框架的依赖；`ya` CLI 就是它的第一个薄入口。
 3. 继续核对未获资料支持的操作建议、对外承诺和失败恢复；真实客户资料的授权及模型数据路径未确认前只使用虚构或获准脱敏样本。
 
 当前学习方式与代码注释要求见根目录 [`AGENTS.md`](../AGENTS.md)。
 
 ## 当前工作区与协作注意事项
 
-- 远端 `main` 最近已推送 `c7d067d`（售后工单与 DeepSeek 原型）。本次 Hermes 在线参考文档改动尚未提交/推送。
+- 远端 `main` 最近已推送 `de168e4`（Hermes 在线架构参考）。本次入口架构决策、相关文档和示例变更正在准备提交/推送。
 - 已确认项目目录中不再有 `hermes-agent/`；PyCharm 的第二个 Git 根映射已从本地 `.idea/vcs.xml` 移除。`.gitignore` 仍保留排除规则，以防将来误将上游克隆加入本仓库。
 - 根目录 `AGENTS.md` 含用户明确要求的教学协作规则；用户亲自学习代码，未经明确要求不代写后续练习。
 - 项目根目录的 `.env` 存放本地 DeepSeek API key，已被 Git 忽略；仓库只保留不含密钥的 `.env.example`。
@@ -46,7 +48,7 @@
 
 ## 尚未完成/未验证
 
-- 尚未形成可供售后人员使用的完整应用；LangGraph、FastAPI、人工审核界面和外部系统集成都未实现。
+- 尚未形成可供售后人员使用的完整应用；`ya_agent/core/`、`ya` CLI、FastAPI 服务、图形界面、LangGraph 和外部系统集成都未实现。按决策 0004，这些属于 S1 之后的阶段，当前不提前动桌面壳。
 - 引文检查目前只验证 `evidence.quote` 是否逐字出现在指定资料文本中，尚不能验证来源名称、结论是否受引文支持，或回复草稿的所有事实与承诺。
 - 真实客户资料的数据授权、模型处理与保留策略、部署方案仍未确定。
 - 未运行测试套件；当前检查来自虚构样本的手动调用和输出核对。
