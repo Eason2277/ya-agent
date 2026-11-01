@@ -19,5 +19,5 @@ htmlcov/
 .idea/
 .vscode/
 
-# Hermes is a separate upstream reference checkout, not this project's source.
+# Keep any accidental upstream checkout out of Ya Agent's own repository.
 /hermes-agent/

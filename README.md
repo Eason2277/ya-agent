@@ -6,7 +6,7 @@
 
 - 产品和 MVP 文档已建立。
 - 技术学习与原型路线：Python + LangChain + LangGraph；需要服务接口时再引入 FastAPI。
-- Hermes Agent 保留作成熟系统的代码参考，不属于本项目源代码，也不是当前 MVP 的运行时。
+- Hermes Agent 仅通过[官方 GitHub 仓库](https://github.com/NousResearch/hermes-agent)作架构参考，不在本项目保留上游源码，也不是当前 MVP 的运行时。
 - 已有基于虚构工单的模型调用与引文核对示例；尚未形成可供售后人员使用的完整应用，用户痛点和产品价值仍需验证。
 
 ## 文档

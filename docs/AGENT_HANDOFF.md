@@ -13,6 +13,7 @@
 - 已添加 `langchain`、`langchain-deepseek` 和 `python-dotenv` 依赖，`pyproject.toml` 与 `uv.lock` 有未提交变更。
 - 用户明确选择使用其 DeepSeek API key。Pi Agent 配置仅作为一次性取 key 的来源；Ya Agent 根目录的本地 `.env` 保存 `DEEPSEEK_API_KEY`，被 Git 忽略，文件权限为 0600。`examples/first_deepseek_call.py` 只加载本项目 `.env`，用 `ChatDeepSeek(model="deepseek-chat")` 发出最小请求；仓库没有密钥字面值。`.env.example` 仅记录变量名。
 - 示例脚本现在生成完整 `TicketReview`，并对每条 `Finding` 调用 `src/ya_agent/evidence.py` 的 `verify_quotes`；该函数在引文缺失时抛出 `ValueError`。`src/ya_agent/review.py` 已定义 `build_review_prompt(ticket_text, manual_text)`，尚未被示例脚本调用。
+- Hermes 以后只通过官方 GitHub 和架构文档参考；`docs/decisions/0002-langchain-langgraph-learning-stack.md` 已记录高层架构对照。已确认原本地浅克隆 `hermes-agent/` 从项目目录移走，PyCharm 的第二个 Git 根映射也已从被 Git 忽略的 `.idea/vcs.xml` 移除。
 
 ## 已核对
 
@@ -21,5 +22,5 @@
 
 ## 当前工作区与下一步
 
-- 除 `schemas.py` 外，产品文档、示例脚本和依赖文件仍有未提交改动；继续前先检查 Git 状态，保留用户修改。
+- Ya Agent 自有代码和前期文档已推送至 `c7d067d`；本次 Hermes 在线参考文档改动尚未提交。继续前先检查 Git 状态，保留用户修改。
 - 下一步：将 `build_review_prompt(ticket_text, manual_text)` 接到示例调用，随后把模型调用与核对逐步移入可复用的应用处理函数。每一步明确输入、输出、依据和失败边界；不要把 key 字面值写入仓库，也不要使用真实客户资料。
