@@ -6,7 +6,7 @@
 
 - 产品和 MVP 文档已建立。
 - 技术学习与原型路线：Python + LangChain + LangGraph；需要服务接口时再引入 FastAPI。
-- 产品形态：终端输入 `ya` 启动的 CLI，以及自有图形界面，两者共用同一 Python 核心；分层与前端选型见[决策 0004](docs/decisions/0004-cli-and-desktop-entry-architecture.md)。
+- 规划的产品形态：终端输入 `ya` 启动的 CLI，以及自有图形界面，两者共用同一 Python 核心；分层与前端选型见[决策 0004](docs/decisions/0004-cli-and-desktop-entry-architecture.md)。当前 `pyproject.toml` 只注册了输出占位信息的 `ya-agent`，`ya` CLI 尚未实现。
 - Hermes Agent 仅通过[官方 GitHub 仓库](https://github.com/NousResearch/hermes-agent)作架构参考，不在本项目保留上游源码，也不是当前 MVP 的运行时。
 - 已有基于虚构工单的模型调用与引文核对示例；尚未形成可供售后人员使用的完整应用，用户痛点和产品价值仍需验证。
 
