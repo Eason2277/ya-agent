@@ -1,4 +1,4 @@
-from ya_agent.schemas import Finding
+from ya_agent.schemas import Finding, TicketReview
 
 
 def verify_quotes(finding: Finding,source_text: str) -> None:
@@ -10,3 +10,11 @@ def verify_quotes(finding: Finding,source_text: str) -> None:
         if not evidence.quote.strip() or evidence.quote not in source_text:
             # 抛出异常
             raise ValueError(f"模型给出的引文不在指定资料中：{evidence.quote!r}")
+
+
+
+
+def verify_review_quotes(review: TicketReview, source_text: str) -> None:
+    """核对整份结果的引文；任一引文缺失时将错误交给调用方。"""
+    for finding in review.findings:
+        verify_quotes(finding, source_text)

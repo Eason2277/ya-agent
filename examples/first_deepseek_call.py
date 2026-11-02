@@ -6,7 +6,7 @@ from pathlib import Path
 from dotenv import load_dotenv
 from langchain_deepseek import ChatDeepSeek
 from ya_agent.schemas import Finding, TicketReview
-from ya_agent.evidence import verify_quotes
+from ya_agent.evidence import verify_quotes, verify_review_quotes
 from ya_agent.review import build_review_prompt
 
 
@@ -33,19 +33,8 @@ def main() -> None:
     # split，对指定的字符串内容进行切割
     ticket_text, manual_text = case_text.split("# 虚构产品手册摘录", maxsplit=1)
 
-    # 前三段文字规定任务和证据边界，最后用 f 字符串附上实际样本内容。
-    prompt = (
-        "根据下面的虚构工单和手册摘录，生成一份供售后人员审核的工单处理结果。"
-        "findings 中只写手册直接支持的事实，每条 evidence.quote 必须逐字引用手册。"
-        "无法确定的具体故障原因放入 unknowns，不要编造维修步骤、保修判断或处理时限。"
-        "客户回复和建议下一步只能使用工单已知事实及手册明确写出的要求；"
-        "不要添加手册未写明的断电、拆卸或检查指令。"
-        "不得声称已经记录工单、安排人员或完成其他尚未执行的动作；"
-        "unknowns 不要列举资料没有支持的可能故障原因。"
-        "需要授权服务人员进一步评估时，在 escalation 中说明原因。`reply_draft.text` 只能建议客户联系授权服务人员，不能承诺售后方会转交或安排尚未执行的工作。"
-        "reply_draft.text 是尚未发送的客户回复；review_note 是给售后人员的审核提醒。\n\n"
-        +build_review_prompt(ticket_text, manual_text)
-    )
+    # 提示词函数负责组织约束、工单和资料；示例只提供本次输入。
+    prompt = build_review_prompt(ticket_text, manual_text)
 
     # 把完整提示词发给模型，返回的 reply 是模型消息；content 是回复正文。
     # reply = model.invoke(prompt)
@@ -71,10 +60,9 @@ def main() -> None:
         print(f"结构化解析错误：{result['parsing_error']!r}")
         print(f"模型原始回复：{result['raw']!r}")
         return
-    # review.findings 是结论列表，每条结论的引文都要核对
+    # 对整份结果逐条核对引文；失败时由示例入口显示原因。
     try:
-        for finding in review.findings:
-            verify_quotes(finding, manual_text)
+        verify_review_quotes(review, manual_text)
     except ValueError as error:
         print(f"证据核对失败，结果需要人工检查：{error}")
         return
