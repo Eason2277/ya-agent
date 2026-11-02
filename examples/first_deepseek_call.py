@@ -42,7 +42,7 @@ def main() -> None:
         "不要添加手册未写明的断电、拆卸或检查指令。"
         "不得声称已经记录工单、安排人员或完成其他尚未执行的动作；"
         "unknowns 不要列举资料没有支持的可能故障原因。"
-        "需要授权服务人员进一步评估时，在 escalation 中说明原因。"
+        "需要授权服务人员进一步评估时，在 escalation 中说明原因。`reply_draft.text` 只能建议客户联系授权服务人员，不能承诺售后方会转交或安排尚未执行的工作。"
         "reply_draft.text 是尚未发送的客户回复；review_note 是给售后人员的审核提醒。\n\n"
         +build_review_prompt(ticket_text, manual_text)
     )
@@ -61,9 +61,16 @@ def main() -> None:
     # print(finding.model_dump())
 
     # 模型按TicketReview填写整份工单处理结果
-    structured_model = model.with_structured_output(TicketReview)
-    review = structured_model.invoke(prompt)
+    structured_model = model.with_structured_output(TicketReview, include_raw=True)
 
+    result = structured_model.invoke(prompt)
+    review = result["parsed"]
+
+
+    if review is None:
+        print(f"结构化解析错误：{result['parsing_error']!r}")
+        print(f"模型原始回复：{result['raw']!r}")
+        return
     # review.findings 是结论列表，每条结论的引文都要核对
     try:
         for finding in review.findings:
