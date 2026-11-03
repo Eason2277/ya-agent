@@ -5,6 +5,8 @@ from pathlib import Path
 
 from dotenv import load_dotenv
 from langchain_deepseek import ChatDeepSeek
+
+from ya_agent.core.review_ticket import review_ticket, TicketReviewParseError
 from ya_agent.schemas import Finding, TicketReview
 from ya_agent.evidence import verify_quotes, verify_review_quotes
 from ya_agent.review import build_review_prompt
@@ -33,38 +35,16 @@ def main() -> None:
     # split，对指定的字符串内容进行切割
     ticket_text, manual_text = case_text.split("# 虚构产品手册摘录", maxsplit=1)
 
-    # 提示词函数负责组织约束、工单和资料；示例只提供本次输入。
-    prompt = build_review_prompt(ticket_text, manual_text)
-
-    # 把完整提示词发给模型，返回的 reply 是模型消息；content 是回复正文。
-    # reply = model.invoke(prompt)
-    # print(reply.content)
-
-    # 要求模型按Finding返回，并将结果解析为Finding对象
-    # structured_model = model.with_structured_output(Finding)
-    # finding = structured_model.invoke(prompt)
-
-    # 模型提出引文后，由我们自己的代码核对它
-    # verify_quotes(finding, manual_text)
-
-    # print(finding.model_dump())
-
-    # 模型按TicketReview填写整份工单处理结果
-    structured_model = model.with_structured_output(TicketReview, include_raw=True)
-
-    result = structured_model.invoke(prompt)
-    review = result["parsed"]
-
-
-    if review is None:
-        print(f"结构化解析错误：{result['parsing_error']!r}")
-        print(f"模型原始回复：{result['raw']!r}")
-        return
-    # 对整份结果逐条核对引文；失败时由示例入口显示原因。
+    # 核心函数接收本次工单，指定资料和模型；成功后返回待人工审核的结果
     try:
-        verify_review_quotes(review, manual_text)
+        review = review_ticket(ticket_text, manual_text, model)
+    except TicketReviewParseError as error:
+        # 入口只显示安全的简短原因，原始回复保存在一场对象中供排查
+        print(f"结构化解析失败，需要人工检查：{error}")
+        return
     except ValueError as error:
-        print(f"证据核对失败，结果需要人工检查：{error}")
+        # 核心的引文核对对失败会以ValueError传到这里
+        print(f"证据核对失败，需要人工检查：{error}")
         return
 
     print(review.model_dump())
