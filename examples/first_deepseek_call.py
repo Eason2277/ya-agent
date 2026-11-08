@@ -6,17 +6,16 @@ from pathlib import Path
 from dotenv import load_dotenv
 from langchain_deepseek import ChatDeepSeek
 
-from ya_agent.core.review_ticket import review_ticket, TicketReviewParseError
+from ya_agent.core.review_ticket import review_ticket, TicketReviewParseError, TicketReviewEvidenceError
 from ya_agent.schemas import Finding, TicketReview
 from ya_agent.evidence import verify_quotes, verify_review_quotes
 from ya_agent.review import build_review_prompt
 
 
-
-
-
 def main() -> None:
     # __file__ 是当前脚本路径；向上两级找到项目根目录，避免依赖终端所在目录。
+    # resolve是用于整理成绝对路径的函数
+    # 其实这里的project_root就是Ya agent
     project_root = Path(__file__).resolve().parents[1]
 
     # 将本项目 .env 中的变量载入当前进程
@@ -42,9 +41,11 @@ def main() -> None:
         # 入口只显示安全的简短原因，原始回复保存在一场对象中供排查
         print(f"结构化解析失败，需要人工检查：{error}")
         return
-    except ValueError as error:
-        # 核心的引文核对对失败会以ValueError传到这里
-        print(f"证据核对失败，需要人工检查：{error}")
+    except TicketReviewEvidenceError as error:
+        print(f"证据核对失败，需要人工检查： {error}")
+        print("已保留的待排查摘要：", error.review.summary)
+        print("未通过核对的引文：", error.__cause__)
+        print("完整待排查结果：", error.review.model_dump())
         return
 
     print(review.model_dump())

@@ -17,6 +17,15 @@ class TicketReviewParseError(RuntimeError):
         self.raw = raw
         self.parsing_error = parsing_error
 
+class TicketReviewEvidenceError(ValueError):
+    """引文核对失败；保留已解析结果供人工排查"""
+
+    def __init__(self, review: TicketReview) -> None:
+        #失败结果只能用于排查，不能作为已通过核对的客户回复
+
+        super().__init__("模型引文未通过指定资料核对")
+        self.review = review
+
 
 def review_ticket(
         ticket_text: str,
@@ -26,7 +35,8 @@ def review_ticket(
     """处理入口层传入的一条工单及指定资料，返回待人工审核的 TicketReview。
 
     示例脚本和未来的 CLI/API 负责准备文本与模型，并接收这里返回的结果。
-    解析结果为空时抛 TicketReviewParseError；引文不在资料中时抛 ValueError。
+    解析结果为空时抛 TicketReviewParseError；引文不在资料中时抛
+    TicketReviewEvidenceError，并保留已解析的结果供入口层排查。
     """
 
     # ticket_text 是客户工单，manual_text 是本次允许使用的资料；提示词函数
@@ -48,7 +58,14 @@ def review_ticket(
             raw=result["raw"],
             parsing_error=result["parsing_error"],
         )
-    # 逐条核对引文是否出现在指定资料中；失败的 ValueError 交给入口层处理。
+    # 逐条核对引文是否出现在指定资料中；底层 ValueError 在此转为
+    # 带有已解析结果的 TicketReviewEvidenceError，交给入口层说明失败。
     # 通过后返回 Pydantic 对象，供售后人员在入口界面继续审核和修改。
-    verify_review_quotes(review, manual_text)
+
+    try:
+        verify_review_quotes(review, manual_text)
+    except ValueError as error:
+        raise TicketReviewEvidenceError(review) from error
+
+
     return review
