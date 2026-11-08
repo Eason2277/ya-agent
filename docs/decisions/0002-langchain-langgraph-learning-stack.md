@@ -38,6 +38,8 @@
 
 这是公开岗位样本，不是全市场统计，也不能证明某个框架长期占有率最高。选择 LangChain/LangGraph 的理由是它们在样本中可见、Python 生态明确，而且覆盖从高层 Agent API 到状态化编排的学习路径；长期可迁移能力仍是 Python 后端、工具/状态设计、评估、可观测性和可靠性。
 
+**2026-11-08 更新：** 用户已明确求职目标为 AI 应用岗位；新的[招聘方官网岗位小样本](../research/2026-11-08-ai-application-jobs.md)与[决策 0005](0005-ai-application-portfolio-priority.md)补充了岗位类型和作品交付优先级。本节保留 2026-10-27 的历史观察，不能代替新样本或真实投递岗位要求。
+
 LangGraph 官方将自身定位为较底层的状态化编排运行时，并建议 Agent 初学者先从 LangChain 的高层 Agent 开始，再深入 LangGraph：[LangGraph 官方概览](https://docs.langchain.com/oss/python/langgraph/overview)。
 
 ## 适用边界

@@ -4,9 +4,11 @@
 
 ## 当前目标
 
-探索面向综合办公的自有 Agent 产品。当前技术学习与原型主线是 **Python + LangChain + LangGraph**；Nous Research Hermes Agent 保留为成熟系统的代码和架构参考，不作为当前原型运行时。产品形态已确定为同时提供终端 `ya` CLI 和自有图形界面，两者共用一个 Python 核心；入口分层、前端选型与分阶段关卡见 [`docs/decisions/0004-cli-and-desktop-entry-architecture.md`](docs/decisions/0004-cli-and-desktop-entry-architecture.md)。当前选定的第一个验证场景是：**制造业企业售后工单处理 Agent**，帮助售后支持人员基于产品手册、服务政策和历史案例整理工单、定位依据并起草回复。这是用户选定的 MVP 假设，尚未用真实团队和工单验证；不能描述为已验证的市场需求。
+探索面向综合办公的自有 Agent 产品。当前技术学习与原型主线是 **Python + LangChain，LangGraph 在需要显式状态和人工暂停/恢复时引入**；Nous Research Hermes Agent 保留为成熟系统的代码和架构参考，不作为当前原型运行时。产品形态已确定为同时提供终端 `ya` CLI 和自有图形界面，两者共用一个 Python 核心；入口分层、前端选型与分阶段关卡见 [`docs/decisions/0004-cli-and-desktop-entry-architecture.md`](docs/decisions/0004-cli-and-desktop-entry-architecture.md)。当前选定的第一个验证场景是：**制造业企业售后工单处理 Agent**，帮助售后支持人员基于产品手册、服务政策和历史案例整理工单、定位依据并起草回复。这是用户选定的 MVP 假设，尚未用真实团队和工单验证；不能描述为已验证的市场需求。
 
 开始或恢复工作时，先读 [`docs/PROGRESS.md`](docs/PROGRESS.md) 了解当前进度和下一步；首版工作流和范围以 [`docs/MVP_WORKFLOW.md`](docs/MVP_WORKFLOW.md) 为准，产品愿景和长期原则以 [`docs/PRODUCT_BRIEF.md`](docs/PRODUCT_BRIEF.md) 为准，当前技术栈选择和评估依据以 [`docs/decisions/0002-langchain-langgraph-learning-stack.md`](docs/decisions/0002-langchain-langgraph-learning-stack.md) 为准。[`docs/README.md`](docs/README.md) 是文档索引。进度文档是续做提示；若与最新代码、Git 状态或用户当前要求不一致，以这些最新证据为准。
+
+用户已确认求职方向是 **AI 应用开发岗位**，并明确希望从已有前端经验走向**完整的 AI 应用全栈研发**：亲自掌握 Python 后端、API、数据、模型处理、评测和交付，前端经验是已有基础而非学习边界。当任务涉及求职定位、产品范围、技术选型或实施优先级时，先读 [`docs/decisions/0005-ai-application-portfolio-priority.md`](docs/decisions/0005-ai-application-portfolio-priority.md) 和其中链接的[2026-11-08 官方招聘岗位样本](docs/research/2026-11-08-ai-application-jobs.md)；再按本次决策所需核对更新的招聘方一手岗位。理由：2026-11-08 用户要求未来 AI 能找到市场证据，并明确不能被前端背景限制发展方向。样本是有日期的小范围观察，不是常驻有效的市场统计。
 
 ## 事实优先与产品质量
 
@@ -18,7 +20,7 @@
 
 - 开始产品或架构工作前，先读本文件和与任务直接相关的产品文档；研究 Hermes 时按具体问题查阅官方 GitHub 源码或文档。
 - 用户当前明确要求优先。文档之间若冲突，指出冲突并先按用户当前要求推进可逆工作；涉及数据权限、外部承诺或大范围返工时，先提出聚焦问题。
-- 区分已确认方向、工作假设和待验证事实。当前确认以 LangChain/LangGraph 作为学习和 MVP 原型主线，Hermes 作为参考，首个场景选择制造业售后工单处理；售后团队是否有足够高频工单、能否提供获准使用的知识材料、渠道、部署方式和需求强度仍待验证。
+- 区分已确认方向、工作假设和待验证事实。当前以 Python/LangChain 处理首条原型流程，LangGraph 是需要显式状态和人工暂停/恢复时的学习与实现选项；Hermes 作为参考，首个场景选择制造业售后工单处理。售后团队是否有足够高频工单、能否提供获准使用的知识材料、渠道、部署方式和需求强度仍待验证。
 - 产品范围变化、跨层技术边界或数据流变化，应更新相应产品文档或新增 `docs/decisions/` 决策记录，注明背景、选择、理由、风险和重新评估条件。
 - 保持文档互相一致：产品概要描述方向和原则；MVP 文档定义一条当前工作流与验收；决策记录解释技术选择；本文件规定协作方式，不重复维护另一份 PRD。
 
